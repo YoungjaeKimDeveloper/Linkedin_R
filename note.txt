@@ -1,0 +1,2 @@
+1. 09/02/2025
+ - Email Configuration 확인하기

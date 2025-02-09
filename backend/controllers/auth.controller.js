@@ -16,6 +16,7 @@ export const signup = async (req, res) => {
     }
 
     const existingUsername = await User.findOne({ username });
+
     if (existingUsername) {
       return res.status(400).json({ message: "Username already exists" });
     }
@@ -27,22 +28,22 @@ export const signup = async (req, res) => {
     }
 
     const salt = await bcrypt.genSalt(10);
-    // 해쉬된 패스워드 사용하기
+    // 비밀번호 해쉬
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // 유저 만들때 해쉬된 유저 비밀번호로 만들어주기
     const user = new User({
       name,
       email,
       password: hashedPassword,
       username,
     });
-
     await user.save();
-
+    // Verify - Token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });
-
+    // Token - cookie
     res.cookie("jwt-linkedin", token, {
       httpOnly: true, // prevent XSS attack
       maxAge: 3 * 24 * 60 * 60 * 1000,
@@ -51,12 +52,14 @@ export const signup = async (req, res) => {
     });
 
     res.status(201).json({ message: "User registered successfully" });
-    // 다 하고나서 이메일 보내주기
+    // Mail Trap Part
+    // 나중에 Routes만들어서 연결될 프로파일 만들어주는거임
     const profileURL = process.env.CLIENT_URL + "/profile/" + user.username;
     try {
+      // 방금 만들어진 유저 정보로 email 작성해주기
       await sendWelcomeEmail(user.email, user.name, profileURL);
     } catch (error) {
-      console.error("Error in sending welcome email: ".error.message);
+      console.error("Error in sending welcome email: ", error.message);
     }
   } catch (error) {
     console.log("Error in signup: ", error.message);
@@ -66,6 +69,7 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    // 유저 아이디와 이름으로 User찾기
     const { username, password } = req.body;
 
     // Check if user exists
@@ -80,7 +84,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Create and send token
+    // 쿠키통에 TOKEN담아주기
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });

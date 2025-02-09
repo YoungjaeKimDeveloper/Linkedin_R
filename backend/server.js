@@ -1,20 +1,23 @@
-// Settings
+// Set the Config
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+// Utility
 import connectDB from "./lib/connectDB.js";
 // ROUTES
 import authRoutes from "../backend/routes/auth.route.js";
-import cookieParser from "cookie-parser";
-// Set the Config
-dotenv.config({ path: "/Users/youngjaekim/Desktop/Linkedin_Restart/.env" });
+import userRoutes from "../backend/routes/user.route.js";
 
-// 미들웨어 설정해주기
+dotenv.config({ path: "/Users/youngjaekim/Desktop/Linkedin_Restart/.env" });
 const app = express();
+// 미들웨어 설정해주기
+
 app.use(express.json({ limit: "5mb" })); // parse JSON body Request
 app.use(cookieParser());
 const PORT = process.env.PORT || 5010;
-
+// Setting the routes
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is Running ${PORT}`);

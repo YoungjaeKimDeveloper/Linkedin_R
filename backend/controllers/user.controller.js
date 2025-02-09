@@ -60,6 +60,7 @@ export const updateProfile = async (req, res) => {
         updatedData[field] = req.body[field];
       }
     }
+
     // 이미지들은 따로 관리해주기
     if (req.body.profilePicture) {
       try {
@@ -81,10 +82,11 @@ export const updateProfile = async (req, res) => {
       }
     }
     const user = await User.findByIdAndUpdate(
-      req.params.id,
+      req.user.id,
       { $set: updatedData },
       { new: true }
-    );
+    ).select("-password");
+    console.log(user);
     return res.json(user);
   } catch (error) {
     console.error("ERROR IN [updateProfile]", error.message);

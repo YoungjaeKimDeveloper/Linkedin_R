@@ -86,7 +86,7 @@ export const updateProfile = async (req, res) => {
       { $set: updatedData },
       { new: true }
     ).select("-password");
-    console.log(user);
+
     return res.json(user);
   } catch (error) {
     console.error("ERROR IN [updateProfile]", error.message);

@@ -17,7 +17,7 @@ export const sendWelcomeEmail = async (email, name, profileUrl) => {
       category: "welcome",
     });
 
-    console.log("Welcome Email sent succesffully", response);
+    console.info("Welcome Email sent succesffully", response);
   } catch (error) {
     throw error;
   }
@@ -45,7 +45,7 @@ export const sendCommentNotificationEmail = async (
       ),
       category: "comment_notification",
     });
-    console.log("Comment Notification Email sent successfully", response);
+    console.info("Comment Notification Email sent successfully", response);
   } catch (error) {
     throw error;
   }

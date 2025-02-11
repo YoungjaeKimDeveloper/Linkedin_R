@@ -4,6 +4,7 @@ import User from "../model/User.model.js";
 import Notification from "../model/notification.model.js";
 // Utility
 import cloudinary from "../lib/cloudinary.config.js";
+import { sendCommentNotificationEmail } from "../emails/emailHandler.js";
 
 export const getFeedPosts = async (req, res) => {
   try {
@@ -118,7 +119,7 @@ export const getPostById = async (req, res) => {
     });
   }
 };
-// Notification 달아주기 
+// Notification 달아주기
 export const createComment = async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -127,17 +128,89 @@ export const createComment = async (req, res) => {
     const post = await Post.findByIdAndUpdate(
       postId,
       {
-        $push: { comments: { user: req.user._id, content } },
+        $push: { comments: { user: req.user.id, content } },
       },
+      // 기존 Document 업데이트 후 에 받게됨
       { new: true }
-      // ? 이 부분 잘이해안됨
+      // For the email?
     ).populate("author", "name email username headline profilePicture");
     // Create the notification for the user
-    const notification = new Notification();
-  } catch (error) {}
+    if (req.user.id.toString() !== post.author.toString()) {
+      const notification = new Notification({
+        recipient: post.author,
+        relatedUser: req.user.id,
+        relatedPost: postId,
+        type: "comment",
+      });
+
+      await notification.save();
+      // todo - send Email
+      try {
+        const postUrl = process.env.CLIENT_URL + "/post/" + postId;
+        await sendCommentNotificationEmail(
+          post.author.email,
+          post.author.name,
+          req.user.name,
+          postUrl,
+          content
+        );
+      } catch (error) {
+        console.error(
+          "Error in sending comment notification email",
+          error.message
+        );
+      }
+      return res.status(200).json(post);
+    }
+  } catch (error) {
+    console.error("Error in createComment controller", error.message);
+    return res.status(500).json({
+      success: false,
+      message: `Error in createComment controller : ${error.message}`,
+    });
+  }
 };
 
 export const likePost = async (req, res) => {
   try {
-  } catch (error) {}
+    const postId = req.params.postId;
+    const userid = req.user.id;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Cannot find the Post" });
+    }
+    // 싫어요(이미 좋아요가 있는경우)
+    if (post.likes.includes(userid)) {
+      post.likes = post.likes.filter(
+        (id) => id.toString() !== userid.toString()
+      );
+    } else {
+      // 좋아요
+      post.likes.push(userid);
+    }
+    // notification 으로 남겨주기
+    if (req.user.id.toString() !== post.author.toString()) {
+      const newNotification = new Notification({
+        recipient: post.author,
+        relatedUser: userid,
+        relatedPost: postId,
+        type: "like",
+      });
+      await newNotification.save();
+    }
+
+    await post.save();
+    return res
+      .status(200)
+      .json({ success: true, message: "Liked function works successfully" });
+  } catch (error) {
+    console.error("Server Error in [likePost]", error.message);
+    return res.status(500).json({
+      success: false,
+      message: `Server Error in [likePost] ${error.message}`,
+    });
+  }
 };

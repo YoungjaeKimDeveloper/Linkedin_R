@@ -9,6 +9,7 @@ import {
   likePost,
 } from "../controllers/post.controller.js";
 const router = express.Router();
+
 // 포스트 가져오는 Route
 router.get("/", protectRoute, getFeedPosts);
 // 포스터 만들어주기

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const PostSchema = new mongoose.Schema(
+const postSchema = new mongoose.Schema(
   {
     // 다른 Model Chaning
     author: {
@@ -27,6 +27,7 @@ const PostSchema = new mongoose.Schema(
         },
         createdAt: {
           type: Date,
+          // Date.now()는 즉시 호출하기때문에 Date.now로 설정
           default: Date.now,
         },
       },
@@ -36,6 +37,6 @@ const PostSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Post = mongoose.model("Post", PostSchema);
+const Post = mongoose.model("Post", postSchema);
 
 export default Post;

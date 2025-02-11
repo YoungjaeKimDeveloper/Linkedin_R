@@ -71,7 +71,7 @@ export const deletePost = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Cannot find the post" });
     }
-
+    // 권한 확인하기
     if (userID.toString() !== post.author.toString()) {
       return res
         .status(401)

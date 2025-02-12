@@ -21,6 +21,7 @@ const PORT = process.env.PORT || 5010;
 // Setting the routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
+
 app.use("/api/v1/posts", postsRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/connections", connectionRoutes);

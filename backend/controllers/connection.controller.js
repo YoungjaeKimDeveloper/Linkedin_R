@@ -137,10 +137,11 @@ export const rejectConnectionRequest = async (req, res) => {
 export const getConnectionRequests = async (req, res) => {
   try {
     const currentUserId = req.user.id;
-    const requests = await ConnectionRequest.find(
-      { recipient: currentUserId },
-      { status: "pending" }
-    ).populate("sender", "name username profilePicture headline");
+    const requests = await ConnectionRequest.find({
+      recipient: currentUserId,
+      status: "pending",
+    }).populate("sender", "name username profilePicture headline");
+    // Populate Chaining 해서 더 가져오기
     return res.status(200).json({
       success: true,
       message: "Successfully get all the Connection Requests✅",
@@ -153,17 +154,84 @@ export const getConnectionRequests = async (req, res) => {
     });
   }
 };
+// 현지 (로그인)한 유저 친구목록 불러오기
+export const getUserConnections = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate(
+      "connections",
+      "name username profilePicture headline connections"
+    );
+    return res.status(200).json({
+      success: true,
+      message: "Fetch user connections✅",
+      connection: user.collections,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: `Server Error in [getUserConnections] ${error.message}`,
+    });
+  }
+};
+// 친구목록에서 지워주기
+export const removeConnection = async (req, res) => {
+  try {
+    const friendId = req.params.userId;
+    const currentUserId = req.user._id;
+    // 상대방에서 connection Remove해주기
+    await User.findByIdAndUpdate(
+      friendId,
+      {
+        $pull: { connections: currentUserId },
+      },
+      { new: true }
+    );
+    await User.findByIdAndUpdate(
+      currentUserId,
+      {
+        $pull: { connections: friendId },
+      },
+      { new: true }
+    );
+    return res
+      .status(200)
+      .json({ success: true, message: "Friend has been deleted✅" });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: `Server Error in [removeConnection] ${error.message}`,
+    });
+  }
+};
 
-// export const getUserConnections = (req, res) => {
-//   try {
-//   } catch (error) {}
-// };
+export const getConnectionsStatus = async (req, res) => {
+  try {
+    const friendID = req.params.userId;
+    const currentUserId = req.user._id;
 
-// export const removeConnection = (req, res) => {
-//   try {
-//   } catch (error) {}
-// };
-// export const getConnectionsStatus = (req, res) => {
-//   try {
-//   } catch (error) {}
-// };
+    const currentUser = await User.findById(currentUserId);
+    if (currentUser.connections.includes(friendID)) {
+      return res.json({ status: "connected" });
+    }
+    const pendingRequest = await ConnectionRequest.find({
+      $or: [
+        { recipient: friendID, sender: currentUserId },
+        { recipient: currentUserId, sender: friendID },
+      ],
+    });
+    if (pendingRequest) {
+      if (pendingRequest.sender.toString() === currentUserId.toString()) {
+        return res.json({ status: "pending" });
+      } else {
+        return res.json({ status: "received", requestId: pendingRequest._id });
+      }
+    }
+    // if no connection or pending req found
+    return res.json({ status: "not_connected" });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: `Server Error in [getConnectionsStatus] ${error.message}`,
+    });
+  }
+};

@@ -9,6 +9,7 @@ import {
 const router = express.Router();
 // 유저 suggestions
 router.get("/suggestions", protectRoute, getSuggestedConnections);
+// 개인 Public Profile
 router.get("/:username", protectRoute, getPublicProfile);
 // profile -Edit
 router.put("/profile", protectRoute, updateProfile);

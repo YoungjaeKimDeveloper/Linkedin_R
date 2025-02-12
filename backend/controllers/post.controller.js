@@ -5,10 +5,10 @@ import Notification from "../model/notification.model.js";
 // Utility
 import cloudinary from "../lib/cloudinary.config.js";
 import { sendCommentNotificationEmail } from "../emails/emailHandler.js";
-
+// 현재유저 + 친구 포스트 가져오기
 export const getFeedPosts = async (req, res) => {
   try {
-    // FeedsPost를 불러올땐 author 기준으로 불러와야한다.
+    // author 기준 Post
     const posts = await Post.find({
       author: {
         $in: [...req.user.connections, req.user._id],

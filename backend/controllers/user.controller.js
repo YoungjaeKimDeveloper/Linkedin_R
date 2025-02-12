@@ -1,10 +1,11 @@
 import User from "../model/User.model.js";
 import cloudinary from "../lib/cloudinary.config.js";
+// 사이드바에 추천 유저 보여주기
 export const getSuggestedConnections = async (req, res) => {
   try {
     const currentUser = await User.findById(req.user.id).select("connections");
     const suggesstedUsers = await User.find({
-      _id: { $ne: req.user.id, $nin: currentUser.connections },
+      _id: { $ne: req.user._id, $nin: currentUser.connections },
     })
       .select("name profilePicture headline")
       .limit(3);
@@ -17,7 +18,7 @@ export const getSuggestedConnections = async (req, res) => {
     });
   }
 };
-
+// 유저 개인 프로파일 볼 수 있게
 export const getPublicProfile = async (req, res) => {
   try {
     const username = req.params.username;
@@ -52,7 +53,7 @@ export const updateProfile = async (req, res) => {
       "experience",
       "education",
     ];
-    // 새로 업데이트 해줄 정보 담을 변수
+    // 새로 업데이트 해줄 정보 담을 변수(Data wrapping)
     const updatedData = {};
     // 요청을 보낸 body에 field가 있을경우
     for (const field of allowField) {
@@ -72,6 +73,7 @@ export const updateProfile = async (req, res) => {
         console.error("Failed to update profilePicture", error.message);
       }
     }
+    
     // 이미지들은 따로 관리해주기
     if (req.body.bannerImg) {
       try {

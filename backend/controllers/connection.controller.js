@@ -14,6 +14,18 @@ export const sendConnectionRequest = async (req, res) => {
         .status(401)
         .json({ success: false, message: "You cannot send request to you" });
     }
+    // 이미 요청을 보낸 상태
+    // 1만번 법칙 생각하기  (요청 계속 보내는것 방지)
+    const existingRequest = await ConnectionRequest.findOne({
+      sender: currentUser._id,
+      recipient: userId,
+      status: "pending",
+    });
+    if (existingRequest) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Request has been sent already" });
+    }
     // 이미 connection에 들어와있는경우
     if (currentUser.connections.includes(userId)) {
       return res.status(400).json({
@@ -68,6 +80,12 @@ export const acceptConnectionRequest = async (req, res) => {
     if (requestedConnection.recipient.toString() !== req.user.id.toString()) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
+    // 이미 connection 완료 눌렀을때
+    if (requestedConnection.status !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "This request has already been processed" });
+    }
     requestedConnection.status = "accepted";
     await requestedConnection.save();
 
@@ -96,6 +114,8 @@ export const acceptConnectionRequest = async (req, res) => {
       type: "connectionAccepted",
       relatedUser: userId,
     });
+    // 만들어주고 나서 항상 저장하기
+    await notification.save();
     return res
       .status(201)
       .json({ success: true, message: "Requeste Accepted ✅" });

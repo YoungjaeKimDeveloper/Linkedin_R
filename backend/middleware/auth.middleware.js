@@ -11,19 +11,19 @@ export const protectRoute = async (req, res, next) => {
         .status(401)
         .json({ message: "Unauthorized - No Token Provided" });
     }
-    // decoded - Token
+    // 발행해준 토큰 decode 해주기
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+    // 찾지못한경우 
     if (!decoded) {
       return res.status(401).json({ message: "Unauthorized - Invalid Token" });
     }
-
+    // docode할때 넣었던 Key값으로 찾아주기
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
-    // middleware에서 다시 req.user = user로 내보내 주기
+    // 인증후 -> 미들웨어에서 다시 보내주기
     req.user = user;
 
     next();

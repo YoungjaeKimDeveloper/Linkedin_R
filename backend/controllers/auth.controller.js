@@ -6,21 +6,22 @@ import { sendWelcomeEmail } from "../emails/emailHandler.js";
 export const signup = async (req, res) => {
   try {
     const { name, username, email, password } = req.body;
-
+    // 전체 필드 요구
     if (!name || !username || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    // 현재 존재하는 이메일: email : unique
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return res.status(400).json({ message: "Email already exists" });
     }
-
+    //
     const existingUsername = await User.findOne({ username });
-
+    // 현재 존재하는 username : unique
     if (existingUsername) {
       return res.status(400).json({ message: "Username already exists" });
     }
-
+    // 패스워드 길이 체크
     if (password.length < 6) {
       return res
         .status(400)
@@ -28,7 +29,7 @@ export const signup = async (req, res) => {
     }
 
     const salt = await bcrypt.genSalt(10);
-    // 비밀번호 해쉬
+    // 비밀번호 암호화
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // 유저 만들때 해쉬된 유저 비밀번호로 만들어주기
@@ -39,11 +40,11 @@ export const signup = async (req, res) => {
       username,
     });
     await user.save();
-    // Verify - Token
+    // 토큰 발행
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });
-    // Token - cookie
+    // 쿠키통에 토큰 저장
     res.cookie("jwt-linkedin", token, {
       httpOnly: true, // prevent XSS attack
       maxAge: 3 * 24 * 60 * 60 * 1000,
@@ -69,25 +70,26 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    // 유저 아이디와 이름으로 User찾기
+    // 유저 아이디 + Password
     const { username, password } = req.body;
 
-    // Check if user exists
+    // 아이디 찾기
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Check password
+    // 비밀번호 매칭
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // 쿠키통에 TOKEN담아주기
+    // 토큰 발행 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });
+    // 발행한 토큰 / 쿠키통에 담아주기
     await res.cookie("jwt-linkedin", token, {
       httpOnly: true,
       maxAge: 3 * 24 * 60 * 60 * 1000,
@@ -103,10 +105,11 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
+  // 로그아웃 -> 쿠키통 비워주기
   res.clearCookie("jwt-linkedin");
-  res.json({ message: "Logged out successfully" });
+  return res.json({ message: "Logged out successfully" });
 };
-
+// 미들웨어에서 던져준거 확인
 export const getCurrentUser = async (req, res) => {
   try {
     res.json(req.user);
@@ -115,3 +118,5 @@ export const getCurrentUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+//  토큰 발행해 주는경우 -> Login / Sign up

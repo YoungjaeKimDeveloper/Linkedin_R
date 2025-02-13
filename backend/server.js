@@ -28,11 +28,11 @@ const PORT = process.env.PORT || 5010;
 app.use("/api/v1/auth", authRoutes);
 // 유저 (현재 로그인)) - ✅
 app.use("/api/v1/user", userRoutes);
-// 포스팅 관련 라우터 
+// 포스팅 관련 라우터 - ✅
 app.use("/api/v1/posts", postsRoutes);
-// 알람 ( 인스타그램)
+// 알람 ( 인스타그램)- ✅
 app.use("/api/v1/notifications", notificationRoutes);
-// 친구 관련
+// 친구 관리기능
 app.use("/api/v1/connections", connectionRoutes);
 
 app.listen(PORT, () => {

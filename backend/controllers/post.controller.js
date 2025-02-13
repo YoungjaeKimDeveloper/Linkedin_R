@@ -14,6 +14,7 @@ export const getFeedPosts = async (req, res) => {
         $in: [...req.user.connections, req.user._id],
       },
     })
+      //  포스트 불러올때 관련 정보 같이 가져오기
       .populate("author", "name username profilePicture headline")
       .populate("comments.user", "name profilePicture")
       .sort({ createdAt: -1 });
@@ -26,7 +27,7 @@ export const getFeedPosts = async (req, res) => {
     });
   }
 };
-
+// 포스트 작성하기
 export const createPost = async (req, res) => {
   try {
     // Post만들기 + Comments / Likes 따로
@@ -138,7 +139,7 @@ export const createComment = async (req, res) => {
     if (req.user.id.toString() !== post.author.toString()) {
       const notification = new Notification({
         recipient: post.author,
-        relatedUser: req.user.id,
+        relatedUser: req.user._id,
         relatedPost: postId,
         type: "comment",
       });
@@ -192,6 +193,7 @@ export const likePost = async (req, res) => {
       post.likes.push(userid);
     }
     // notification 으로 남겨주기
+    // 글 작성한 주인에게 Like 달렸다고 Notification 전달해주기
     if (req.user.id.toString() !== post.author.toString()) {
       const newNotification = new Notification({
         recipient: post.author,

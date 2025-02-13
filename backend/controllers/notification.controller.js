@@ -1,4 +1,5 @@
 import Notification from "../model/notification.model.js";
+
 export const getNotifications = async (req, res) => {
   try {
     const userID = req.user.id;
@@ -46,20 +47,25 @@ export const readNotification = async (req, res) => {
 
 export const deleteNotification = async (req, res) => {
   try {
-    const notificationId = req.params.notificationId;
-    const recipient = req.user.id;
-    const deleted = await Notification.deleteOne({
+    const { notificationId } = req.params;
+    const userId = req.user._id;
+
+    const notification = await Notification.findOneAndDelete({
       _id: notificationId,
-      recipient,
+      recipient: userId,
     });
-    if (deleted.deletedCount === 0) {
+
+    if (!notification) {
       return res
         .status(404)
-        .json({ success: false, message: "Notification not found" });
+        .json({ success: false, message: "Cannot find the Notification" });
     }
-    return res
-      .status(200)
-      .json({ success: true, message: "Notification deleted" });
+
+    return res.status(200).json({
+      success: true,
+      message: "Notification has been deleted ✅",
+      notification,
+    });
   } catch (error) {
     console.error("Error in [deleteNotification]", error.message);
     return res.status(500).json({
@@ -68,5 +74,4 @@ export const deleteNotification = async (req, res) => {
     });
   }
 };
-
 // 프론트엔드에서 어떤 요청해올지 계속 생각하고 있어야함

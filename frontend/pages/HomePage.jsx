@@ -1,25 +1,18 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+// External library
 import React from "react";
-import { axiosInstance } from "../src/lib/axiosInstance";
-import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
+// Internal Components
+import Sidebar from "../components/Home/Sidebar";
 
 const HomePage = () => {
-  const queryClient = useQueryClient();
-  const { mutate: loggout } = useMutation({
-    mutationFn: async () => {
-      await axiosInstance.post("/auth/logout");
-    },
-    onSuccess: () => {
-      toast.success("User logged out");
-      // queryClient.setQueryData(["authUser"], null);
-      // queryClient.setQueryData(["authUser"], null);
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
-    },
-    onError: (error) => {
-      toast.error("Failed to logout", error.message);
-    },
-  });
-  return <div></div>;
+  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+  return (
+    <div className="bg-blue-50 min-h-screen min-w-screen grid grid-col-1 lg:grid-cols-3 px-10 py-4">
+      <Sidebar authUser={authUser} />
+      {/* MAIN POST PART */}
+      {/* Recommended User */}
+    </div>
+  );
 };
 
 export default HomePage;

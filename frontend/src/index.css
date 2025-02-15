@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+/* HTML 기본 요소를 바꿈 */
+@layer base {
+  a {
+    @apply cursor-pointer;
+  }
+}
+/* Custom된 클래스를 의미함 */
+@layer utilities {
+  .profile-font {
+    @apply font-bold text-gray-400;
+  }
+  .profile-links {
+    @apply flex items-center justify-center gap-x-2;
+  }
+}
+
+/* 따로 컴포넌트 만들때 사용돰 */
+/* @layer components{
+    .card {
+        @apply 
+    }
+} */

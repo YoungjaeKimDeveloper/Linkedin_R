@@ -33,7 +33,7 @@ const App = () => {
         return res.data;
         // Unauthorized ERRRO 예상해서 AuthUser 풀어줘야함
       } catch (error) {
-        toast.error(`Update authUer Error ${error?.response?.data?.message}`);
+        // toast.error(`Update authUer Error ${error?.response?.data?.message}`);
         if (error.response && error.response.status === 401) {
           return null;
         }
@@ -41,7 +41,6 @@ const App = () => {
     },
   });
   // 로딩시 화면
-  console.log("-T: authUser", authUser);
   if (isLoading) {
     return <p>Loading..</p>;
   }

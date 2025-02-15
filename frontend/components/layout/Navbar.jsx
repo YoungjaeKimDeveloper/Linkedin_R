@@ -47,6 +47,7 @@ const Navbar = () => {
         return null;
       }
     },
+    enabled: !!authUser,
   });
   // Fetch the connection Request
   const { data: connectionRequest } = useQuery({
@@ -61,6 +62,7 @@ const Navbar = () => {
         toast.error("Failed to fetch connectionRequests", error.message);
       }
     },
+    enabled: !!authUser,
   });
 
   return (

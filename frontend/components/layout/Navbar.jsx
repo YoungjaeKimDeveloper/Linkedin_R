@@ -1,6 +1,6 @@
 // Internal
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
   House,
@@ -16,12 +16,26 @@ import { axiosInstance } from "../../src/lib/axiosInstance";
 import toast from "react-hot-toast";
 
 const Navbar = () => {
+  const queryClient = useQueryClient();
   // Auth User
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
-  // Notification fetching Query
+  // Logout function
+  const { mutate: logout } = useMutation({
+    mutationFn: async () => {
+      await axiosInstance.post("/auth/logout");
+    },
+    onSuccess: () => {
+      toast.success("Loggout Successfully");
+      queryClient.invalidateQueries({ queryKey: [] });
+    },
+    onError: (error) => {
+      toast.error("Failed to logout", error?.resposne?.data?.message);
+    },
+  });
+
+  // Fetch the notification
   const { data: notification } = useQuery({
     queryKey: ["notifications"],
-    // useQuery는 항상 Data 를 반환해주어야함
     queryFn: async () => {
       try {
         const res = await axiosInstance.get("/notifications/getNotifications");
@@ -34,7 +48,7 @@ const Navbar = () => {
       }
     },
   });
-  // Fetch the connection Requests
+  // Fetch the connection Request
   const { data: connectionRequest } = useQuery({
     queryKey: ["connectionRequest"],
     queryFn: async () => {
@@ -48,8 +62,7 @@ const Navbar = () => {
       }
     },
   });
-  console.log("T-Notification", notification);
-  console.log("T- Connection Request", connectionRequest);
+
   return (
     <div className=" max-h-10 shadow-lg shadow-cyan-500/50 flex w-screen justify-between items-center py-12 px-10 bg-amber-50">
       <img src={logoSrc} alt="Linkedin-logo" className="size-15 rounded-2xl" />
@@ -90,10 +103,10 @@ const Navbar = () => {
             <UserRound />
             <span>Me</span>
           </Link>
-          <Link to="/" className="flex flex-col items-center">
+          <div className="flex flex-col items-center" onClick={logout}>
             <LogOut />
             <span>logout</span>
-          </Link>
+          </div>
         </div>
       ) : (
         <div className="flex gap-x-5 mr-5 ">

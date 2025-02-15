@@ -85,7 +85,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // 토큰 발행 
+    // 토큰 발행
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });
@@ -106,16 +106,17 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   // 로그아웃 -> 쿠키통 비워주기
+  
   res.clearCookie("jwt-linkedin");
   return res.json({ message: "Logged out successfully" });
 };
 // 미들웨어에서 던져준거 확인
 export const getCurrentUser = async (req, res) => {
   try {
-    res.json(req.user);
+    return res.json(req.user);
   } catch (error) {
     console.error("Error in getCurrentUser controller:", error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 

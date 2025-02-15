@@ -1,7 +1,8 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import { Home, Loader } from "lucide-react";
+import { Home, Loader, Network } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Utility
 import Layout from "../components/layout/Layout";
 import { axiosInstance } from "./lib/axiosInstance.js";
@@ -10,7 +11,10 @@ import { axiosInstance } from "./lib/axiosInstance.js";
 import HomePage from "../pages/HomePage.jsx";
 import SignUpPage from "../pages/Auth/SignUpPage.jsx";
 import LoginPage from "../pages/Auth/LoginPage.jsx";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import NetworkPage from "../pages/NetworkPage.jsx";
+import NotificationPage from "../pages/NotificationPage.jsx";
+import PostPage from "../pages/PostPage.jsx";
+import ProfilePage from "../pages/ProfilePage.jsx";
 
 // Auth user check
 
@@ -54,8 +58,26 @@ const App = () => {
           element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
         />
         <Route
-          path="login"
+          path="/login"
           element={!authUser ? <LoginPage /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/network"
+          element={authUser ? <NetworkPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/notification"
+          element={authUser ? <NotificationPage /> : <Navigate to="/login" />}
+        />
+        {/* Post*/}
+        <Route
+          path="/post/:postId"
+          element={authUser ? <PostPage /> : <Navigate to="/login" />}
+        />
+        {/* Profile 파라미터로 동적인것 받아주기 */}
+        <Route
+          path="/profile/:username"
+          element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
       </Routes>
       <Toaster />

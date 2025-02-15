@@ -60,7 +60,7 @@ const Navbar = () => {
             <House />
             <span>Home</span>
           </Link>
-          <Link to={"/"} className="flex flex-col items-center relative">
+          <Link to="/network" className="flex flex-col items-center relative">
             <div>
               <UsersRound />
               {connectionRequest?.length > 0 && (
@@ -71,7 +71,10 @@ const Navbar = () => {
             </div>
             <span>My Network</span>
           </Link>
-          <Link to={"/"} className="flex flex-col items-center relative">
+          <Link
+            to="/notification"
+            className="flex flex-col items-center relative"
+          >
             <Bell />
             <span>Notification</span>
             {notification?.length > 0 && (
@@ -80,11 +83,14 @@ const Navbar = () => {
               </span>
             )}
           </Link>
-          <Link to={"/"} className="flex flex-col items-center">
+          <Link
+            to={`/profile/${authUser.name}`}
+            className="flex flex-col items-center"
+          >
             <UserRound />
             <span>Me</span>
           </Link>
-          <Link to={"/"} className="flex flex-col items-center">
+          <Link to="/" className="flex flex-col items-center">
             <LogOut />
             <span>logout</span>
           </Link>

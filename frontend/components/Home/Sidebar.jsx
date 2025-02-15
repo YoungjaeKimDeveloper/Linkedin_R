@@ -8,7 +8,6 @@ import bannerImg from "../../public/banner.png";
 import userProfileImg from "../../public/avatar.png";
 
 const Sidebar = ({ authUser }) => {
-  console.log("Auth User: ", authUser);
   const numberOfConnections = authUser.connections.length;
   return (
     <div className=" max-w-60  border-black border-solid max-h-200 rounded-xl shadow-sm  shadow-black border-1 bg-gray-50 hidden lg:block ">

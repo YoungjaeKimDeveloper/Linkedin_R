@@ -2,11 +2,13 @@
 import React, { useState } from "react";
 import { Loader, Send, Image } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 // Internal
 import userProfile from "../../public/avatar.png";
-import { useMutation } from "@tanstack/react-query";
 import { axiosInstance } from "../../src/lib/axiosInstance.js";
 const PostCreation = ({ authUser }) => {
+  // Declare QueryClient
+  const queryClient = useQueryClient();
   // Track the info
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
@@ -20,6 +22,7 @@ const PostCreation = ({ authUser }) => {
       onSuccess: () => {
         toast.success("Posted Successfully");
         resetForm();
+        queryClient.invalidateQueries({ queryKey: ["posts"] });
       },
       onError: (error) => {
         console.error(
@@ -75,8 +78,7 @@ const PostCreation = ({ authUser }) => {
     setImagePreview("");
   };
   // Testing
-  console.log("IMAGE", image);
-  console.log("IMAGE PREVIEW", imagePreview);
+
   return (
     <div className="bg-gray-200 max-w-[700px] h-[200px] rounded-2xl">
       <form onSubmit={handlePostCreation}>

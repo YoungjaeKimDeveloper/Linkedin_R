@@ -6,3 +6,15 @@
     @apply flex items-center gap-x-2 p-2 cursor-pointer;
   }
 }
+
+@layer components {
+  .button-set {
+    @apply hover:cursor-pointer;
+  }
+}
+
+@layer base {
+  button {
+    @apply hover:cursor-pointer;
+  }
+}

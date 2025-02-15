@@ -30,9 +30,7 @@ const HomePage = () => {
     },
   });
   // TESTER - ZONE
-  console.log("-T POSTS: ", posts);
-  console.log("AUTHUSER", authUser);
-  console.log("POSTS", posts);
+
   return (
     <div className="bg-blue-50 min-h-screen min-w-screen grid grid-col-1 lg:grid-cols-3 px-10 py-4">
       <div className="hidden lg:block lg:col-span-1">

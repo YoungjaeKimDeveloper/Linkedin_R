@@ -11,7 +11,7 @@ const Sidebar = ({ authUser }) => {
   console.log("Auth User: ", authUser);
   const numberOfConnections = authUser.connections.length;
   return (
-    <div className=" max-w-60  border-black border-solid max-h-100 rounded-xl shadow-2xl shadow-black border-2 bg-gray-50 ">
+    <div className=" max-w-60  border-black border-solid max-h-200 rounded-xl shadow-sm  shadow-black border-1 bg-gray-50 hidden lg:block ">
       <div contextMenu="flex flex-col items-center border-black !shadow-2xl">
         {/* Top Profile */}
         <div className="relative z-10">
@@ -32,27 +32,29 @@ const Sidebar = ({ authUser }) => {
               {numberOfConnections}{" "}
               {numberOfConnections <= 1 ? "connection" : "connections"}
             </p>
+            {/* Bottom Links */}
+            <div className="flex flex-col itmes-cen justify-center gap-y-4 mt-5 text-center">
+              <Link to="/" className="profile-links flex  gap-x-2">
+                <House />
+                <p className="profile-font">Home</p>
+              </Link>
+              <Link to="/network" className="profile-links">
+                <Users />
+                <p className="profile-font">My Network</p>
+              </Link>
+              <Link to="/notification" className="profile-links">
+                <BellDot />
+                <p className="profile-font">Notifications</p>
+              </Link>
+              {/* Link for Profile */}
+              <Link
+                to={`/profile/${authUser.name}`}
+                className="my-2 cursor-pointer"
+              >
+                <p>View Profile</p>
+              </Link>
+            </div>
           </div>
-        </div>
-
-        {/* Bottom Links */}
-        <div className="flex flex-col itmes-cen justify-center gap-y-4 mt-5 text-center">
-          <Link to="/" className="profile-links">
-            <House />
-            <p className="profile-font">Home</p>
-          </Link>
-          <Link to="/network" className="profile-links">
-            <Users />
-            <p className="profile-font">My Network</p>
-          </Link>
-          <Link to="/notification" className="profile-links">
-            <BellDot />
-            <p className="profile-font">Notifications</p>
-          </Link>
-          {/* Link for Profile */}
-          <Link to={`/profile/${authUser.name}`}>
-            <p>View Profile</p>
-          </Link>
         </div>
       </div>
     </div>

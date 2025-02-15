@@ -1,4 +1,5 @@
 import React from "react";
+import "./index.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { Home, Loader, Network } from "lucide-react";

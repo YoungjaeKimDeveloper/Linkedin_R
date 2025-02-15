@@ -64,7 +64,11 @@ const Navbar = () => {
     },
     enabled: !!authUser,
   });
-
+  // Length of Data
+  const unreadNotification = notification?.filter(
+    (noti) => noti.read !== true
+  ).length;
+  const unreadConnectionRequest = connectionRequest?.length;
   return (
     <div className=" max-h-10 shadow-lg shadow-cyan-500/50 flex w-screen justify-between items-center py-12 px-10 bg-amber-50">
       <img src={logoSrc} alt="Linkedin-logo" className="size-15 rounded-2xl" />
@@ -80,7 +84,7 @@ const Navbar = () => {
               <UsersRound />
               {connectionRequest?.length > 0 && (
                 <span className="absolute size-5 bg-red-300 flex items-center justify-center rounded-full bottom-10 right-5  animate-pulse">
-                  {connectionRequest.length}
+                  {unreadConnectionRequest}
                 </span>
               )}
             </div>
@@ -94,7 +98,7 @@ const Navbar = () => {
             <span>Notification</span>
             {notification?.length > 0 && (
               <span className="absolute size-5 bg-red-300 flex items-center justify-center rounded-full bottom-10 right-5  animate-pulse">
-                {notification.length}
+                {unreadNotification}
               </span>
             )}
           </Link>

@@ -16,7 +16,7 @@ export const getFeedPosts = async (req, res) => {
     })
       //  포스트 불러올때 관련 정보 같이 가져오기
       .populate("author", "name username profilePicture headline")
-      .populate("comments.user", "name profilePicture")
+      .populate("comments.user", "name username profilePicture")
       .sort({ createdAt: -1 });
     return res.status(200).json({ success: true, posts });
   } catch (error) {
@@ -125,18 +125,22 @@ export const createComment = async (req, res) => {
   try {
     const postId = req.params.postId;
     // 실제 유저가 작성한 content
-    const { content } = req.body;
+    const content = req.body.comment;
+    console.log("전달받은 commnet", content);
     const post = await Post.findByIdAndUpdate(
       postId,
       {
-        $push: { comments: { user: req.user.id, content } },
+        $push: { comments: { user: req.user.id, content: content } },
       },
       // 기존 Document 업데이트 후 에 받게됨
       { new: true }
       // For the email?
     ).populate("author", "name email username headline profilePicture");
+    // console.log("-T- UserID : ", req.user?.id);
+    // console.log("-T- postAuthor : ", post?.author);
+    console.info("function이 울립니다");
     // Create the notification for the user
-    if (req.user.id.toString() !== post.author.toString()) {
+    if (req.user.id.toString() !== post.author._id.toString()) {
       const notification = new Notification({
         recipient: post.author,
         relatedUser: req.user._id,
@@ -163,6 +167,7 @@ export const createComment = async (req, res) => {
       }
       return res.status(200).json(post);
     }
+    return res.status(200).json({ success: true, post });
   } catch (error) {
     console.error("Error in createComment controller", error.message);
     return res.status(500).json({

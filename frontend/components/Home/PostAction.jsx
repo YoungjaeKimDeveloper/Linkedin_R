@@ -1,5 +1,18 @@
 import React from "react";
-const PostAction = ({ Icon, tag }) => {
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { axiosInstance } from "../../src/lib/axiosInstance";
+import toast from "react-hot-toast";
+const PostAction = ({
+  Icon,
+  tag,
+  post,
+  onClick,
+  isLiked,
+  showComments,
+  length,
+}) => {
+  let style = "";
+  let commentStyle = "";
   let color = (tag) => {
     switch (tag) {
       case "like":
@@ -12,10 +25,23 @@ const PostAction = ({ Icon, tag }) => {
         return "";
     }
   };
+  if (isLiked) {
+    style = "fill-blue-300";
+  }
+  if (showComments) {
+    commentStyle = "fill-green-300";
+  }
+  // Testing Zone
 
   return (
-    <button>
-      <Icon className={`cursor-pointer stroke-blue-300 ${color(tag)}`} />
+    <button
+      className="flex items-center gap-x-1 cursor-pointer"
+      onClick={onClick}
+    >
+      <Icon
+        className={`cursor-pointer  ${color(tag)} ${style} ${commentStyle}`}
+      />
+      <span className="font-bold">{length}</span>
     </button>
   );
 };

@@ -11,10 +11,13 @@
   .button-set {
     @apply hover:cursor-pointer;
   }
+  .share-btn {
+    @apply bg-blue-400 p-2 rounded-xl text-white font-bold cursor-pointer;
+  }
 }
 
 @layer base {
   button {
-    @apply hover:cursor-pointer;
+    @apply cursor-pointer;
   }
 }

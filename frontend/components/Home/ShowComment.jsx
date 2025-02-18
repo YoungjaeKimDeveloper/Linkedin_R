@@ -1,7 +1,6 @@
 import React from "react";
 
 const ShowComment = ({ comment }) => {
-  console.log(comment);
   return (
     <div>
       <div className="bg-gray-300 rounded-2xl mt-4">

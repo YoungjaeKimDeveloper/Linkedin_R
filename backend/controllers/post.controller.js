@@ -85,7 +85,6 @@ export const deletePost = async (req, res) => {
         await cloudinary.uploader.destroy(
           post.image.split("/").pop().split(".")[0]
         );
-        console.log("IMAGE DELETED✅");
       } catch (error) {
         console.error("Failed to delete image from cloudinary", error.message);
       }
@@ -126,7 +125,6 @@ export const createComment = async (req, res) => {
     const postId = req.params.postId;
     // 실제 유저가 작성한 content
     const content = req.body.comment;
-    console.log("전달받은 commnet", content);
     const post = await Post.findByIdAndUpdate(
       postId,
       {
@@ -136,8 +134,7 @@ export const createComment = async (req, res) => {
       { new: true }
       // For the email?
     ).populate("author", "name email username headline profilePicture");
-    // console.log("-T- UserID : ", req.user?.id);
-    // console.log("-T- postAuthor : ", post?.author);
+
     console.info("function이 울립니다");
     // Create the notification for the user
     if (req.user.id.toString() !== post.author._id.toString()) {

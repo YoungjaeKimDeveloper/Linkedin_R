@@ -3,14 +3,56 @@ import ConnectionRequest from "../model/ConnectionRequest.model.js";
 import Notification from "../model/notification.model.js";
 import User from "../model/User.model.js";
 // 요청 보내기
+// Focus
+// Issue
+export const getConnectionsStatus = async (req, res) => {
+  const friendID = req.params.userId;
+  const currentUserId = req.user._id;
+
+  // Testing Zone
+  try {
+    const currentUser = await User.findById(currentUserId);
+    // 뿌려지는 User 들 과의 관계를 의미함
+    if (currentUser?.connections?.includes(friendID)) {
+      return res.json({ status: "connected" });
+    }
+    const pendingRequest = await ConnectionRequest.findOne({
+      $or: [
+        { recipient: friendID, sender: currentUserId },
+        { recipient: currentUserId, sender: friendID },
+      ],
+    });
+
+    if (pendingRequest) {
+      // 현재
+      if (pendingRequest?.sender?.toString() === currentUserId?.toString()) {
+        return res.json({ status: "pending" });
+      } else {
+        return res.json({
+          status: "received",
+          requestId: pendingRequest._id,
+        });
+      }
+    }
+    // if no connection or pending req found
+    return res.json({ status: "not_connected" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: `Server Error in [getConnectionsStatus] ${error.message}`,
+    });
+  }
+};
+// Create new connection Request
 export const sendConnectionRequest = async (req, res) => {
   try {
+    const currentUser = req.user;
     // 친구요청 받는 아이디
     const userId = req.params.userId;
-    const currentUser = req.user;
 
     // 자기 자신에게 보내는 경우
-    if (currentUser.id.toString() === userId.toString()) {
+    if (currentUser._id.toString() === userId.toString()) {
       return res
         .status(401)
         .json({ success: false, message: "You cannot send request to you" });
@@ -36,13 +78,14 @@ export const sendConnectionRequest = async (req, res) => {
         message: "Member is already in your connection",
       });
     }
-    // 새로운 친구 요청 보내주기
+    // 새로운 친구 요청 보내주기(create new ConnetionRequest)
     const newRequest = new ConnectionRequest({
       recipient: userId,
-      sender: req.user.id,
+      sender: req.user._id,
+      status: "pending",
     });
-    await newRequest.save();
 
+    await newRequest.save();
     return res.status(201).json({
       success: true,
       message: "Connection Request has been sent",
@@ -56,22 +99,33 @@ export const sendConnectionRequest = async (req, res) => {
     });
   }
 };
-// 친구 요청 받아주기 [서로 친구되기]
+// Change the UI + Change the Logic
+// 친구 수락하기
+
 export const acceptConnectionRequest = async (req, res) => {
   const { requestId } = req.params;
-  const userId = req.user.id;
+  const userId = req.user._id;
+
   try {
     const requestedConnection = await ConnectionRequest.findById(requestId)
       .populate("sender", "name username profilePicture")
       .populate("recipient", "name username");
     // 친구 요청을 찾지 못하는 경우
     if (!requestedConnection) {
+      console.error("친구 요청을 찾지 못하는 경우");
       return res
         .status(404)
         .json({ success: false, message: "Cannot find the request" });
     }
+
+    // Testing Zone[S]
+    // Testing Zone[E]
+
     // 친구 요청을 받을 권한이 없는경우
-    if (requestedConnection.recipient.toString() !== req.user.id.toString()) {
+    if (
+      requestedConnection?.recipient?._id.toString() !== req.user.id.toString()
+    ) {
+      console.error("권한이 없습니다");
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
     // 이미 요청이 진행된 경우
@@ -80,10 +134,11 @@ export const acceptConnectionRequest = async (req, res) => {
         .status(400)
         .json({ message: "This request has already been processed" });
     }
+    // Change the Status for UI
     requestedConnection.status = "accepted";
     await requestedConnection.save();
 
-    // - 서로 친구 항목에 추가 해 주기
+    // 실제 Logic
     // 요청 보낸 친구 받아주기
     await User.findByIdAndUpdate(
       requestedConnection.sender._id,
@@ -108,35 +163,48 @@ export const acceptConnectionRequest = async (req, res) => {
       type: "connectionAccepted",
       relatedUser: userId,
     });
+
     // 만들어주고 나서 항상 저장하기
     await notification.save();
     return res
       .status(201)
       .json({ success: true, message: "Requeste Accepted ✅" });
   } catch (error) {
+    console.error("ERROR IN [acceptConnectionRequest] ", error);
     return res.status(500).json({
       success: false,
       message: `Server Error in [acceptConnectionRequest] ${error.message}`,
     });
   }
 };
-// Connection 거절하기
+// 친구 요청 거절하기
+// 에러 나는 부분
 export const rejectConnectionRequest = async (req, res) => {
+  // Testing Zone[S]
+  const requestedID = req.params.requestId;
+  const connectionRequest = await ConnectionRequest.findById(requestedID);
+  console.log("requestedID", requestedID);
+  console.log("connectionRequest", connectionRequest._id);
+  // Testing Zone[E]
   try {
-    const requestedID = req.params.requestId;
-    const connectionRequest = await ConnectionRequest.findById(requestedID);
     // connectionRequest 발견 못 한경우
     if (!connectionRequest) {
+      console.error("ERROR IN [!connectionRequest]");
       return res
         .status(404)
         .json({ success: false, message: "Cannot find the request" });
     }
     // 거절할 권한이 없는경우 (항상 권한 체크해주세용❤️)
-    if (connectionRequest.recipient.toString() !== req.user.id.toString()) {
+
+    if (
+      connectionRequest?.recipient?._id.toString() !== req.user.id.toString()
+    ) {
+      console.error("[rejectConnectionRequest]- Unauthorized");
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
-    connectionRequest.status = "rejected";
-    await connectionRequest.save();
+    // UI용 으로 connectionRequest.stats 만 바꿔주는것임
+    await ConnectionRequest.findByIdAndDelete(requestedID);
+    // 그 뒤에 로직은 따로없으
     return res
       .status(200)
       .json({ success: true, message: "Connection rejectedrejected ✅" });
@@ -218,36 +286,7 @@ export const removeConnection = async (req, res) => {
     });
   }
 };
+// UI 조정을 위한 화면임
 
-export const getConnectionsStatus = async (req, res) => {
-  try {
-    const friendID = req.params.userId;
-    const currentUserId = req.user._id;
-
-    const currentUser = await User.findById(currentUserId);
-    
-    if (currentUser.connections.includes(friendID)) {
-      return res.json({ status: "connected" });
-    }
-    const pendingRequest = await ConnectionRequest.find({
-      $or: [
-        { recipient: friendID, sender: currentUserId },
-        { recipient: currentUserId, sender: friendID },
-      ],
-    });
-    if (pendingRequest) {
-      if (pendingRequest.sender.toString() === currentUserId.toString()) {
-        return res.json({ status: "pending" });
-      } else {
-        return res.json({ status: "received", requestId: pendingRequest._id });
-      }
-    }
-    // if no connection or pending req found
-    return res.json({ status: "not_connected" });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: `Server Error in [getConnectionsStatus] ${error.message}`,
-    });
-  }
-};
+// Testing Zone[S]
+// Testing Zone[E]

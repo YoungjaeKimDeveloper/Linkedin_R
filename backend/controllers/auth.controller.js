@@ -10,19 +10,25 @@ export const signup = async (req, res) => {
     if (!name || !username || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    // Trimed Data
+    const trimmedName = name.trim();
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
     // 현재 존재하는 이메일: email : unique
-    const existingEmail = await User.findOne({ email });
+    const existingEmail = await User.findOne({ email: trimmedEmail });
     if (existingEmail) {
       return res.status(400).json({ message: "Email already exists" });
     }
     //
-    const existingUsername = await User.findOne({ username });
+    const existingUsername = await User.findOne({ username: trimmedUsername });
     // 현재 존재하는 username : unique
     if (existingUsername) {
       return res.status(400).json({ message: "Username already exists" });
     }
     // 패스워드 길이 체크
-    if (password.length < 6) {
+    if (trimmedPassword.length < 6) {
       return res
         .status(400)
         .json({ message: "Password must be at least 6 characters" });
@@ -30,14 +36,14 @@ export const signup = async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     // 비밀번호 암호화
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(trimmedPassword, salt);
 
     // 유저 만들때 해쉬된 유저 비밀번호로 만들어주기
     const user = new User({
-      name,
-      email,
+      name: trimmedName,
+      email: trimmedEmail,
       password: hashedPassword,
-      username,
+      username: trimmedUsername,
     });
     await user.save();
     // 토큰 발행
@@ -106,7 +112,7 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   // 로그아웃 -> 쿠키통 비워주기
-  
+
   res.clearCookie("jwt-linkedin");
   return res.json({ message: "Logged out successfully" });
 };

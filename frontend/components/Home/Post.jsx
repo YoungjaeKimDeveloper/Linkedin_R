@@ -50,12 +50,10 @@ const Post = ({ post, authUser }) => {
   const { mutate: createCommentMutation, isPending: isCommentLoading } =
     useMutation({
       mutationFn: async (comment) => {
-        console.log("전달되는 코멘트", comment);
         await axiosInstance.post(`/posts/${post._id}/comment`, { comment });
       },
       onSuccess: () => {
         toast.success("Comment has been created successfully");
-        console.log("댓글달기완료");
         queryClient.invalidateQueries({ queryKey: ["posts"] });
         setShowComments(true);
         setComment("");
@@ -79,7 +77,6 @@ const Post = ({ post, authUser }) => {
   const startDate = new Date(post?.createdAt);
   const distance = formatDistanceToNow(startDate, { addSuffix: true });
   const handleCreateComment = (e) => {
-    console.log("h");
     e.preventDefault();
     createCommentMutation(comment);
   };
@@ -142,7 +139,6 @@ const Post = ({ post, authUser }) => {
         </div>
         {/* show Comments */}
 
-        {console.log("POST: ", post)}
         {showComments &&
           post?.comments?.map((comment) => <ShowComment comment={comment} />)}
 

@@ -13,6 +13,7 @@ const notificationSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  // POST는 선택사항
   relatedPost: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Post",

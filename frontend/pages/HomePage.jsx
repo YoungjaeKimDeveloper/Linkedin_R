@@ -7,10 +7,12 @@ import { Handshake, X } from "lucide-react";
 import Sidebar from "../components/Home/Sidebar";
 import PostCreation from "../components/Home/PostCreation";
 import Post from "../components/Home/Post";
+import RecommendedUser from "../components/Home/RecommendedUser";
 // Utility
 import { axiosInstance } from "../src/lib/axiosInstance";
 // Image
 import avatar from "../public/avatar.png";
+
 const HomePage = () => {
   // Authuser
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
@@ -25,12 +27,28 @@ const HomePage = () => {
           "ERROR IN [Fetching POSTS]",
           error?.response?.data?.message
         );
-        toast.error(
-          `FAILED TO FETCHED THE POSTS ${error?.response?.data?.message}`
-        );
+        // toast.error(
+        //   `FAILED TO FETCHED THE POSTS ${error?.response?.data?.message}`
+        // );
       }
     },
+    enabled: !!authUser,
   });
+  // fetch Recommended User
+  const { data: recommendedUsers } = useQuery({
+    queryKey: ["recommendedUser"],
+    queryFn: async () => {
+      try {
+        const res = await axiosInstance.get("/user/suggestions");
+        return res?.data;
+      } catch (error) {
+        console.error("ERROR IN fetching [recommendedUser] ", error?.message);
+        // toast.error(`ERROR IN fetching [recommendedUser] ${error?.message}`);
+      }
+    },
+    enabled: !!authUser,
+  });
+
   // TESTER - ZONE
 
   return (
@@ -49,57 +67,12 @@ const HomePage = () => {
       <div className="hidden col-span-1 lg:col-span-1 lg:block bg-gray-200 max-h-60 rounded-2xl">
         <div className="px-4 flex flex-col justify-center gap-y-5 w-full  h-full">
           {/* Individual User */}
-          <div className="flex justify-between items-center bg-blue">
-            <div className="flex items-center">
-              <img src={avatar} alt="vatar" className="size-10 mr-2" />
-              <div>
-                <p className="text-sm text-gray-500">userName</p>
-                <p className="text-sm text-gray-400">headline</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-x-2">
-              <button className="bg-blue-400 p-2 rounded-full !hover:cursor-pointer">
-                <Handshake size={15} className="stroke-white" />
-              </button>
-              <button className="bg-red-400 p-2 rounded-full">
-                <X size={15} />
-              </button>
-            </div>
-          </div>
-          <div className="flex justify-between items-center bg-blue">
-            <div className="flex items-center">
-              <img src={avatar} alt="vatar" className="size-10 mr-2" />
-              <div>
-                <p className="text-sm text-gray-500">userName</p>
-                <p className="text-sm text-gray-400">headline</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-x-2">
-              <button className="bg-blue-400 p-2 rounded-full !hover:cursor-pointer">
-                <Handshake size={15} className="stroke-white" />
-              </button>
-              <button className="bg-red-400 p-2 rounded-full">
-                <X size={15} />
-              </button>
-            </div>
-          </div>
-          <div className="flex justify-between items-center bg-blue">
-            <div className="flex items-center">
-              <img src={avatar} alt="vatar" className="size-10 mr-2" />
-              <div>
-                <p className="text-sm text-gray-500">userName</p>
-                <p className="text-sm text-gray-400">headline</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-x-2">
-              <button className="bg-blue-400 p-2 rounded-full !hover:cursor-pointer">
-                <Handshake size={15} className="stroke-white" />
-              </button>
-              <button className="bg-red-400 p-2 rounded-full">
-                <X size={15} />
-              </button>
-            </div>
-          </div>
+          {recommendedUsers?.map((recommendedUser) => (
+            <RecommendedUser
+              key={recommendedUser._id}
+              recommendedUser={recommendedUser}
+            />
+          ))}
         </div>
       </div>
     </div>

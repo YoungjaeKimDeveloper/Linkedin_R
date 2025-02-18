@@ -5,7 +5,7 @@ import {
   acceptConnectionRequest,
   rejectConnectionRequest,
   getConnectionRequests,
-  getUserConnections,
+  getUserConnections, 
   removeConnection,
   getConnectionsStatus,
 } from "../controllers/connection.controller.js";

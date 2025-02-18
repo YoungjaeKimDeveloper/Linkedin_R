@@ -1,5 +1,5 @@
 import Notification from "../model/notification.model.js";
-
+// 실제 notifiaciotn 보여주는 Page
 export const getNotifications = async (req, res) => {
   try {
     const userID = req.user.id;

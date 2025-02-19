@@ -54,7 +54,7 @@ export const deleteNotification = async (req, res) => {
       _id: notificationId,
       recipient: userId,
     });
-
+    // Validation
     if (!notification) {
       return res
         .status(404)

@@ -137,6 +137,7 @@ export const createComment = async (req, res) => {
 
     console.info("function이 울립니다");
     // Create the notification for the user
+    // Notification 따로 만들어주기
     if (req.user.id.toString() !== post.author._id.toString()) {
       const notification = new Notification({
         recipient: post.author,

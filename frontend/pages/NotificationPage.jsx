@@ -1,7 +1,7 @@
 // External
 import React from "react";
 import toast from "react-hot-toast";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ThumbsUp,
   UserPlus,
@@ -10,13 +10,16 @@ import {
   Trash2,
   UserSquare,
   Eye,
+  Check,
 } from "lucide-react";
 
 // Internal
 import { axiosInstance } from "../src/lib/axiosInstance";
 import { formatDistanceToNow } from "date-fns";
+import userProfile from "../public/avatar.png";
 
 const NotificationPage = () => {
+  const queryClient = useQueryClient();
   // notification 불러오기
   const { data: notifications, isLoading: isFetchingNotification } = useQuery({
     queryKey: ["notifications"],
@@ -41,6 +44,7 @@ const NotificationPage = () => {
       },
       onSuccess: () => {
         toast.success("Read the notification successfully");
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
       },
       onError: (error) => {
         console.log("ERROR IN [readNotificationMutation]", error);
@@ -51,10 +55,11 @@ const NotificationPage = () => {
   const { mutate: deleteNotification, isPending: isDeleteLoading } =
     useMutation({
       mutationFn: async (notificationId) => {
-        await axiosInstance.delete(`/${notificationId}`);
+        await axiosInstance.delete(`/notifications/${notificationId}`);
       },
       onSuccess: () => {
         toast.success("Notification deleted successfully");
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
       },
       onError: (error) => {
         console.error("ERROR IN [deleteNotification]", error);
@@ -66,10 +71,18 @@ const NotificationPage = () => {
     switch (notification?.type) {
       case "like": {
         return (
-          <div className="border rounded-xl p-4 border-solid border-black flex items-center bg-yellow-50 max-w-full">
+          <div
+            className={`border rounded-xl p-4 border-solid border-black flex items-center  max-w-full ${
+              notification?.read && "bg-gray-300"
+            }`}
+          >
             <div className="flex items-start gap-x-4 w-full">
               <img
-                src="../public/avatar.png"
+                src={`${
+                  notification?.relatedUser?.profilePicture
+                    ? notification.relatedUser?.profilePicture
+                    : userProfile
+                }`}
                 alt="profile_img"
                 className="size-10"
               />
@@ -92,10 +105,14 @@ const NotificationPage = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-x-2">
-                  <Eye
-                    className="stroke-blue-500 cursor-pointer"
-                    onClick={() => readNotificationMutation(notification._id)}
-                  />
+                  {notification?.read ? (
+                    <Check className="stroke-green-500 stroke-3" />
+                  ) : (
+                    <Eye
+                      className="stroke-blue-500 cursor-pointer"
+                      onClick={() => readNotificationMutation(notification._id)}
+                    />
+                  )}
                   <Trash2
                     className="stroke-red-500 cursor-pointer"
                     onClick={() => deleteNotification(notification._id)}
@@ -108,7 +125,11 @@ const NotificationPage = () => {
       }
       case "comment":
         return (
-          <div className="border rounded-xl p-4 border-solid border-black flex items-center bg-yellow-50 max-w-full">
+          <div
+            className={`border rounded-xl p-4 border-solid border-black flex items-center  max-w-full ${
+              notification?.read && "bg-gray-300"
+            }`}
+          >
             <div className="flex items-start gap-x-4 w-full">
               <img
                 src="../public/avatar.png"
@@ -134,10 +155,14 @@ const NotificationPage = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-x-2">
-                  <Eye
-                    className="stroke-blue-500 cursor-pointer"
-                    onClick={() => readNotificationMutation(notification._id)}
-                  />
+                  {notification?.read ? (
+                    <Check className="stroke-green-500 stroke-3" />
+                  ) : (
+                    <Eye
+                      className="stroke-blue-500 cursor-pointer"
+                      onClick={() => readNotificationMutation(notification._id)}
+                    />
+                  )}
                   <Trash2
                     className="stroke-red-500 cursor-pointer"
                     onClick={() => deleteNotification(notification._id)}
@@ -149,8 +174,12 @@ const NotificationPage = () => {
         );
       case "connectionAccepted":
         return (
-          <div className="border rounded-xl p-4 border-solid border-black flex items-center bg-yellow-50 max-w-full">
-            <div className="flex items-start gap-x-4 w-full">
+          <div
+            className={`border rounded-xl p-4 border-solid border-black flex items-center  max-w-full ${
+              notification?.read && "bg-gray-300"
+            }`}
+          >
+            <div className={`flex items-start gap-x-4 w-full`}>
               <img
                 src="../public/avatar.png"
                 alt="profile_img"
@@ -175,10 +204,14 @@ const NotificationPage = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-x-2">
-                  <Eye
-                    className="stroke-blue-500 cursor-pointer"
-                    onClick={() => readNotificationMutation(notification._id)}
-                  />
+                  {notification?.read ? (
+                    <Check className="stroke-green-500 stroke-3" />
+                  ) : (
+                    <Eye
+                      className="stroke-blue-500 cursor-pointer"
+                      onClick={() => readNotificationMutation(notification._id)}
+                    />
+                  )}
                   <Trash2
                     className="stroke-red-500 cursor-pointer"
                     onClick={() => deleteNotification(notification._id)}

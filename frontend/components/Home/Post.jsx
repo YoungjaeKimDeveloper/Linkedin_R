@@ -55,6 +55,7 @@ const Post = ({ post, authUser }) => {
       onSuccess: () => {
         toast.success("Comment has been created successfully");
         queryClient.invalidateQueries({ queryKey: ["posts"] });
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
         setShowComments(true);
         setComment("");
       },

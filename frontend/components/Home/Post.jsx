@@ -140,7 +140,9 @@ const Post = ({ post, authUser }) => {
         {/* show Comments */}
 
         {showComments &&
-          post?.comments?.map((comment) => <ShowComment comment={comment} />)}
+          post?.comments?.map((comment, index) => (
+            <ShowComment key={index} comment={comment} />
+          ))}
 
         {/* Create new comment */}
         <form className="w-full mt-4" onSubmit={handleCreateComment}>

@@ -35,7 +35,7 @@ const NotificationPage = () => {
     },
   });
   // Testing
-  console.log(notifications);
+
   // notification 읽기
   const { mutate: readNotificationMutation, isPending: isReadNotification } =
     useMutation({
@@ -224,14 +224,14 @@ const NotificationPage = () => {
     }
   };
   // TESTING ZONE[S]
-  console.log(notifications);
+
   // TESTING ZONE[E]
 
   return (
     <div className="min-h-full min-w-full overflow-scroll flex flex-col  bg-amber-100 ">
       <div className=" min-w-1/2 lg:min-w-[1020px] min-h-screen mt-20 mx-auto flex flex-col gap-y-4">
         {notifications?.map((notificaiton) => (
-          <div>{renderNotification(notificaiton)}</div>
+          <div key={notificaiton._id}>{renderNotification(notificaiton)}</div>
         ))}
       </div>
     </div>

@@ -5,11 +5,11 @@ import {
   acceptConnectionRequest,
   rejectConnectionRequest,
   getConnectionRequests,
-  getUserConnections, 
+  getUserConnections,
   removeConnection,
   getConnectionsStatus,
 } from "../controllers/connection.controller.js";
-const router = express.Router();
+const  router = express.Router();
 // 친구추가 요청 보내기
 router.post("/request/:userId", protectRoute, sendConnectionRequest);
 // 친구 요청 받아주기

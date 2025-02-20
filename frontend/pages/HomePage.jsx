@@ -65,14 +65,22 @@ const HomePage = () => {
         ))}
       </div>
       <div className="hidden col-span-1 lg:col-span-1 lg:block bg-gray-200 max-h-60 rounded-2xl">
-        <div className="px-4 flex flex-col justify-center gap-y-5 w-full  h-full">
+        <div className="px-4 flex flex-col justify-center gap-y-5 w-full  h-full items-center">
           {/* Individual User */}
-          {recommendedUsers?.map((recommendedUser) => (
-            <RecommendedUser
-              key={recommendedUser._id}
-              recommendedUser={recommendedUser}
-            />
-          ))}
+          {recommendedUsers?.length == 0 ? (
+            <div>
+              <p className="font-bold">No recommendedUsers</p>
+            </div>
+          ) : (
+            <div className="py-4 w-full h-full">
+              {recommendedUsers?.map((recommendedUser) => (
+                <RecommendedUser
+                  key={recommendedUser._id}
+                  recommendedUser={recommendedUser}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -80,3 +88,5 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
+// 항상 map으로 뿌려주기 전에 Layout 짜주고 만들어주기

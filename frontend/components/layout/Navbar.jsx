@@ -70,11 +70,11 @@ const Navbar = () => {
   ).length;
   const unreadConnectionRequest = connectionRequest?.length;
   return (
-    <div className=" max-h-10 shadow-lg shadow-cyan-500/50 flex w-screen justify-between items-center py-12 px-10 bg-amber-50">
+    <div className=" max-h-10 shadow-lg  flex w-screen justify-between items-center py-12 px-10 bg-amber-200  ">
       <img src={logoSrc} alt="Linkedin-logo" className="size-15 rounded-2xl" />
       {/* Icons */}
       {authUser ? (
-        <div className="flex gap-x-5 mr-5 ">
+        <div className=" hidden lg:flex gap-x-5  ">
           <Link to="/" className="flex flex-col items-center">
             <House />
             <span>Home</span>

@@ -103,6 +103,7 @@ export const sendConnectionRequest = async (req, res) => {
 // 친구 수락하기
 
 export const acceptConnectionRequest = async (req, res) => {
+  console.log("FUNCITON이 울립니다")
   const { requestId } = req.params;
   const userId = req.user._id;
 
